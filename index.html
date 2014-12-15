@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>云巴 Yunba</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/lib/socket.io.js"></script>
+    <script src="js/lib/yunba-1.0.1.js"></script>
+    <script src="js/main.js"></script>
+</head>
+<body>
+<section>
+    <div id="view-chatroom" class="container" style="padding-top: 50px;">
+        <div class="row">
+            <div class="col-md-10">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <div class="h3 panel-title">聊天室</div>
+                    </div>
+                    <div style="height: 500px;" class="panel-body">
+                        <ul id="chat-messages" class="chat-messages">
+                            <!--  span.chat-username 游客#1000 -->
+                            <!--  span.chat-message-body 游客#1000: message -->
+                        </ul>
+                    </div>
+                    <div class="panel-footer">
+                        <div class="input-group">
+                            <input type="text" id="chatroom-input" class="form-control">
+                            <span class="input-group-btn">
+                                <button type="button" id="btn-send-msg" class="btn btn-success">
+                                    发送
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <div class="h3 panel-title">在线列表</div>
+                    </div>
+                    <div style="height: 500px;" class="panel-body">
+                        <ul id="chat-online-list" class="list-group chat-online-list">
+                            <!--li.list-group-item 游客#1000-->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

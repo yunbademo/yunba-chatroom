@@ -1,0 +1,44 @@
+/*  聊天窗口主体 */
+.chat-messages {
+    height: 100%;
+    margin: 0;
+    overflow-y: scroll;
+    padding: 10px 20px 10px 20px;
+}
+
+.chat-messages li {
+    list-style: none;
+}
+
+.chat-message {
+    color: gray;
+    margin: 5px;
+}
+
+.chat-username {
+    float: left;
+    font-weight: 700;
+    overflow: hidden;
+    padding-right: 15px;
+    text-align: right;
+}
+
+.chat-message-body {
+    color: gray;
+}
+
+/* 在线用户列表 */
+.chat-online-list {
+    height: 100%;
+    margin: 0;
+    overflow-y: scroll;
+    padding: 5px 5px 5px 5px;
+}
+
+/* 聊天窗口 Log 相关信息 */
+.chat-log {
+    color: gray;
+    font-size: 80%;
+    margin: 5px;
+    text-align: center;
+}
