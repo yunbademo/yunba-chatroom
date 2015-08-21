@@ -2,9 +2,11 @@
 
 var yunba_demo;
 
-var userList = [];
-var numUsers = 1;
-var username = '游客#' + Math.floor(Math.random() * 100000);
+var CHATROOM_TOPIC = 'CHATROOM_DEMO_V2';
+
+var userList = [],
+    numUsers = 1,
+    username = '';
 
 function initialize() {
     initYunbaSDK();
@@ -47,11 +49,6 @@ function initChatroomEvent() {
     $('#chatroom-input').keydown(function (event) {
         sendMessageOnEnter(event)
     });
-
-    // 关闭浏览器告诉其他用户下线
-    $(window).on("unload", function () {
-        sendState('OFFLINE');
-    });
 }
 
 // 连接服务器
@@ -61,11 +58,37 @@ function connect() {
         if (success) {
             logMessage('连接成功...');
             setMessageCallback();
-            subscribe('CHATROOM_DEMO');
+            setAlias(function () {
+                subscribe(CHATROOM_TOPIC);
+            });
         } else {
             logMessage(msg);
         }
     });
+}
+
+// 设置别名
+function setAlias(callback) {
+    var alias = 'Vistor_' + Math.floor(Math.random() * 100000);
+
+    yunba_demo.get_alias(function (data) {
+        if (!data.alias) {
+            yunba_demo.set_alias({'alias': alias}, function (data) {
+                if (!data.success) {
+                    console.log(data.msg);
+                } else {
+                    username = alias;
+                }
+
+                callback && callback();
+            });
+        } else {
+            username = data.alias;
+            callback && callback();
+        }
+    });
+
+
 }
 
 // 订阅消息
@@ -73,33 +96,50 @@ function subscribe(topic) {
     logMessage('正在尝试加入房间...');
     yunba_demo.subscribe({'topic': topic}, function (success, msg) {
         if (success) {
-            logMessage('加入房间成功...');
-            sendState('ONLINE');
-            getOnlineUsers();
-            $('#chatroom-input').attr('disabled', false);
-            $('#btn-send-msg').attr('disabled', false);
+            yunba_demo.subscribe_presence({'topic': topic}, function (success, msg) {
+                if (success) {
+                    logMessage('加入房间成功...');
+                    getOnlineUsers();
+                    $('#chatroom-input').attr('disabled', false);
+                    $('#btn-send-msg').attr('disabled', false);
+                } else {
+                    logMessage(msg);
+                }
+            });
         } else {
             logMessage(msg);
         }
     });
 }
+
 // 取得在线用户
 function getOnlineUsers() {
-    var data = JSON.stringify({
-        dataType: 'GET_ONLINE_USERS'
+    yunba_demo.get_alias_list(CHATROOM_TOPIC, function (success, data) {
+
+        var index = 0,
+            length = data.alias.length;
+
+        var getState = function (callback) {
+            var alias = data.alias[index];
+            yunba_demo.get_state(alias, function (data) {
+                if (data.success) {
+                    addOnlineUserElement(alias);
+                    callback && callback();
+                }
+            });
+        };
+
+        var cb = function () {
+            if (index < length) {
+                index++;
+                getState(cb);
+            }
+        };
+
+        getState(cb);
     });
-    publish('CHATROOM_DEMO', data);
 }
 
-// 发送 在线/离线 状态
-function sendState(onlineInfo) {
-    var data = JSON.stringify({
-        dataType: 'ONLINE_STATE',
-        dataContent: onlineInfo, // 'ONLINE' or 'OFFLINE'
-        username: username
-    });
-    publish('CHATROOM_DEMO', data);
-}
 
 // 发送消息
 function sendMessage() {
@@ -112,10 +152,11 @@ function sendMessage() {
         dataContent: $('#chatroom-input').val(),
         username: username
     });
-    publish('CHATROOM_DEMO', data);
+    publish(CHATROOM_TOPIC, data);
     $('#chatroom-input').val('');
 }
 
+// 按回车发送消息
 function sendMessageOnEnter(event) {
     if (event.keyCode === 13) {
         event.preventDefault();
@@ -142,7 +183,17 @@ function publish(topic, message) {
 // 设置接收到 message 的回调处理方法
 function setMessageCallback() {
     yunba_demo.set_message_cb(function (data) {
-        dataController(data.msg);
+        if (data.presence) {
+            var presence = data.presence,
+                alias = presence.alias;
+            if (presence.action == 'online') {
+                addOnlineUserElement(alias);
+            } else if (presence.action == 'offline') {
+                removeOnlineUserElement(alias);
+            }
+        } else {
+            dataController(data.msg);
+        }
     });
 }
 
@@ -151,47 +202,32 @@ function dataController(data) {
     data = JSON.parse(data);
     if ('MESSAGE' === data.dataType) {
         addMessageElement(data);
-    } else if ('ONLINE_STATE' === data.dataType) {
-        userController(data);
-    } else if ('GET_ONLINE_USERS' === data.dataType) {
-        sendState('ONLINE');
     } else {
         console.log('发生错误...');
     }
 }
 
-// 处理在线用户列表
-function userController(data) {
-    var username = data.username;
-
-    if ('ONLINE' === data.dataContent) {
-        if (-1 === userList.indexOf(username)) {
-            userList.push(username);
-            numUsers = userList.length;
-            addOnlineUserElement(username);
-        }
-    } else if ('OFFLINE' === data.dataContent) {
-        var indexOf = userList.indexOf(username);
-        if (-1 != indexOf) {
-            userList.splice(indexOf, 1);
-            numUsers = userList.length;
-            removeOnlineUserElement(username);
-        }
-    }
-}
-
 // 在线用户列表中添加一个元素
 function addOnlineUserElement(username) {
-    var $chatOnlineList = $('#chat-online-list');
-    var $userListItem = $('<li class="list-group-item"/>').text(username);
-    $userListItem.attr('id', username);
+    if (-1 === userList.indexOf(username)) {
+        userList.push(username);
+        numUsers = userList.length;
+        var $chatOnlineList = $('#chat-online-list');
+        var $userListItem = $('<li class="list-group-item"/>').text(username);
+        $userListItem.attr('id', username);
 
-    $chatOnlineList.append($userListItem);
+        $chatOnlineList.append($userListItem);
+    }
 }
 
 // 在线用户列表中移除一个元素
 function removeOnlineUserElement(username) {
-    $('li[id="' + username + '"]').remove();
+    var indexOf = userList.indexOf(username);
+    if (-1 != indexOf) {
+        userList.splice(indexOf, 1);
+        numUsers = userList.length;
+        $('li[id="' + username + '"]').remove();
+    }
 }
 
 // 在聊天框中输出一条信息
