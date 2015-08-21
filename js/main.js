@@ -69,7 +69,7 @@ function connect() {
 
 // 设置别名
 function setAlias(callback) {
-    var alias = 'Vistor_' + Math.floor(Math.random() * 100000);
+    var alias = 'Visitor' + Math.floor(Math.random() * 100000);
 
     yunba_demo.get_alias(function (data) {
         if (!data.alias) {
@@ -234,16 +234,14 @@ function removeOnlineUserElement(username) {
 function addMessageElement(data, isLog) {
     var $chatMessages = $('#chat-messages');
     if (isLog) {
-        $chatMessages.append($('<li>').addClass('chat-log').text(data.log));
+        $chatMessages.append($('<li />').addClass('chat-log').text(data.log));
         $chatMessages.scrollTop($chatMessages[0].scrollHeight); // 滚动到最底部
         return;
     }
 
     var $usernameSpan = $('<span class="chat-username"/>').text(data.username);
-    var $messageBodySpan = $('<span class="chat-message-body">').text(data.dataContent);
-    var $messageLi = $('<li class="chat-message"/>')
-        .data('username', data.username)
-        .append($usernameSpan, $messageBodySpan);
+    var $messageBodySpan = $('<span class="chat-message-body"/>').text(data.dataContent);
+    var $messageLi = $('<li class="chat-message"/>').append($usernameSpan, $messageBodySpan);
 
     $chatMessages.append($messageLi);
     $chatMessages.scrollTop($chatMessages[0].scrollHeight);
