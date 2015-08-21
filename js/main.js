@@ -28,7 +28,6 @@ function initYunbaSDK() {
         }
     }, function () {
         logMessage('服务断线，正在尝试重新连接...');
-        sendState('OFFLINE');
         connect();
     });
 }
@@ -69,7 +68,7 @@ function connect() {
 
 // 设置别名
 function setAlias(callback) {
-    var alias = 'Visitor' + Math.floor(Math.random() * 100000);
+    var alias = 'Visitor_' + Math.floor(Math.random() * 100000);
 
     yunba_demo.get_alias(function (data) {
         if (!data.alias) {
@@ -213,7 +212,7 @@ function addOnlineUserElement(username) {
         userList.push(username);
         numUsers = userList.length;
         var $chatOnlineList = $('#chat-online-list');
-        var $userListItem = $('<li class="list-group-item"/>').text(username);
+        var $userListItem = $('<li class="list-group-item"></li>').text(username);
         $userListItem.attr('id', username);
 
         $chatOnlineList.append($userListItem);
@@ -234,14 +233,14 @@ function removeOnlineUserElement(username) {
 function addMessageElement(data, isLog) {
     var $chatMessages = $('#chat-messages');
     if (isLog) {
-        $chatMessages.append($('<li />').addClass('chat-log').text(data.log));
+        $chatMessages.append($('<li></li>').addClass('chat-log').text(data.log));
         $chatMessages.scrollTop($chatMessages[0].scrollHeight); // 滚动到最底部
         return;
     }
 
-    var $usernameSpan = $('<span class="chat-username"/>').text(data.username);
-    var $messageBodySpan = $('<span class="chat-message-body"/>').text(data.dataContent);
-    var $messageLi = $('<li class="chat-message"/>').append($usernameSpan, $messageBodySpan);
+    var $usernameSpan = $('<span class="chat-username"></span>').text(data.username);
+    var $messageBodySpan = $('<span class="chat-message-body"></span>').text(data.dataContent);
+    var $messageLi = $('<li class="chat-message"></li>').append($usernameSpan, $messageBodySpan);
 
     $chatMessages.append($messageLi);
     $chatMessages.scrollTop($chatMessages[0].scrollHeight);
