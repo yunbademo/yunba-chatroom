@@ -215,7 +215,7 @@ function addMessageElement(data, isLog) {
 
 $(document).ready(function () {
     yunba_demo = new Yunba({
-        server: 'abjgw.yunba.io', port: 8181, appkey: '5487f75052be1f7e1dd834e8'
+        appkey: '5487f75052be1f7e1dd834e8'
     });
 
     initialize();
