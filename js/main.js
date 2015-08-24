@@ -173,15 +173,15 @@ function publish(topic, message) {
 // 设置接收到 message 的回调处理方法
 function setMessageCallback() {
     yunba_demo.set_message_cb(function (data) {
-        if (data.presence) {
+        if (data.presence && data.topic == (CHATROOM_TOPIC + '/p')) {
             var presence = data.presence,
                 alias = presence.alias;
-            if (presence.action == 'online') {
+            if (presence.action == 'online' || presence.action == 'join') {
                 addOnlineUserElement(alias);
             } else if (presence.action == 'offline') {
                 removeOnlineUserElement(alias);
             }
-        } else {
+        } else if (data.topic == CHATROOM_TOPIC) {
             dataController(data.msg);
         }
     });
@@ -192,8 +192,6 @@ function dataController(data) {
     data = JSON.parse(data);
     if ('MESSAGE' === data.dataType) {
         addMessageElement(data);
-    } else {
-        console.log('发生错误...');
     }
 }
 
