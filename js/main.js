@@ -2,7 +2,7 @@
 
 var yunba_demo;
 
-var CHATROOM_TOPIC = 'CHATROOM_DEMO_V2';
+var CHATROOM_TOPIC = 'CHATROOM_DEMO_V2_150824';
 
 var userList = [],
     numUsers = 1,
@@ -116,29 +116,20 @@ function getOnlineUsers() {
     yunba_demo.get_alias_list(CHATROOM_TOPIC, function (success, data) {
 
         var index = 0,
-            length = data.alias.length;
+            length = data.alias.length,
+            alias = {};
 
-        var getState = function (callback) {
-            var alias = data.alias[index];
-            yunba_demo.get_state(alias, function (data) {
-                if (data.success) {
-                    addOnlineUserElement(alias);
-                    callback && callback();
+        for (var index = 0; index < length; index++) {
+            var messageId = __MessageIdUtil.get();
+            alias[messageId] = data.alias[index];
+            yunba_demo.get_state2({'alias': alias[messageId], 'messageId': messageId}, function (data) {
+                if (data.success && data.data == 'online') {
+                    addOnlineUserElement(alias[data.messageId]);
                 }
             });
-        };
-
-        var cb = function () {
-            if (index < length) {
-                index++;
-                getState(cb);
-            }
-        };
-
-        getState(cb);
+        }
     });
 }
-
 
 // 发送消息
 function sendMessage() {
