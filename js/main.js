@@ -2,7 +2,7 @@
 
 var yunba_demo;
 
-var CHATROOM_TOPIC = 'CHATROOM_DEMO_V2_150824';
+var CHATROOM_TOPIC = 'CHATROOM_DEMO_V2_150826';
 
 var userList = [],
     numUsers = 1,
@@ -120,11 +120,9 @@ function getOnlineUsers() {
             alias = {};
 
         for (var index = 0; index < length; index++) {
-            var messageId = __MessageIdUtil.get();
-            alias[messageId] = data.alias[index];
-            yunba_demo.get_state2({'alias': alias[messageId], 'messageId': messageId}, function (data) {
+            yunba_demo.get_state(data.alias[index], function (data) {
                 if (data.success && data.data == 'online') {
-                    addOnlineUserElement(alias[data.messageId]);
+                    addOnlineUserElement(data.alias);
                 }
             });
         }
